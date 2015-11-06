@@ -72,7 +72,7 @@ var app = function () {
       _.invoke(emails, "trim");
       emails = _.uniq(emails);
       _.each(emails, function(email) {
-        if (email != '' && !this.collection.findWhere({email: email})) {
+        if (email != '' && !this.collection.findWhere({email: email, channel: channel})) {
           // don't add duplicates
           newEmails.push(new Address({
             email: email,
@@ -95,14 +95,18 @@ var app = function () {
               addr.set({"status": "failed"});
             } else {
               slack.getGroupByName(addr.get("channel"), addr.get("apiKey")).then(function(groupID) {
-                slack.addUserToGroup(userID.id, groupID.id, addr.get("apiKey")).then(function(success) {
-                  if (success) {
-                    addr.set({"status": "done"});
-                  } else {
-                    addr.set({"status": "failed"});
-                  }
+                if (groupID !== undefined) {
+                  slack.addUserToGroup(userID.id, groupID.id, addr.get("apiKey")).then(function(success) {
+                    if (success) {
+                      addr.set({"status": "done"});
+                    } else {
+                      addr.set({"status": "failed"});
+                    }
 
-                });
+                  });
+                } else {
+                  addr.set({"status": "failed"});
+                }
               });
             }
           });

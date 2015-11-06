@@ -13,7 +13,6 @@ var slack = (function() {
 
   var getUserByEmail = function(email, token) {
     return getUsers(token).then(function(users) {
-      console.log('users', users);
       if (users.ok === true) {
         user = _.find(users.members, function(user) {return user.profile.email == email});
         if (user !== undefined) {
