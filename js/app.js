@@ -41,7 +41,7 @@ var app = function () {
       } else {
         this.$el.removeClass(statusClasses);
       }
-      this.$el.html(this.model.get("email"));
+      this.$el.html(this.model.get("email") + '<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>' + this.model.get("channel"));
       return this; 
     }
   });
@@ -87,8 +87,8 @@ var app = function () {
     invite: function() {
       slack.clearCache(); // clear cache so new registering users will get picked up
       this.collection.each(function(addr) {
-        if (addr.get("status") == "new") {
-          // skip already failed or added users
+        if (addr.get("status") != "done") {
+          // skip already added users
           slack.getUserByEmail(addr.get("email"), addr.get("apiKey")).then(function(userID) {
             if (userID === undefined) {
               // unknown user
@@ -125,9 +125,14 @@ var app = function () {
     this.views.main.addNew(apiKey, channel, emails);
   };
 
+  var invite = function() {
+    this.views.main.invite();
+  }
+
   return {
     init: init,
     add: add,
+    invite: invite,
     collections: {},
     views: {}
   }
